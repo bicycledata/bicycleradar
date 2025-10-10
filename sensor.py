@@ -43,6 +43,9 @@ def notification_handler(sensor, characteristic: BleakGATTCharacteristic, data: 
             target_speeds[j] = bin2dec(dat)
             bin_target_speeds[j] = format(dat, '08b')
 
+    if target_ids[0] == 0:
+        return # no targets detected, don't log
+
     data_row = [f'"{target_ids}"', f'"{target_ranges}"', f'"{target_speeds}"', f'"{bin_target_speeds}"']
     sensor.write_measurement(data_row)
 
