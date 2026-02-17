@@ -77,8 +77,13 @@ async def find_varia(sensor, address: Optional[str] = None) -> Optional[BLEDevic
                 sensor.send_msg(f"Found Varia by address {d.name} ({d.address})")
                 return d
     else:
+        # Prefer 315 series
         for d in devices:
-            if d.name and (d.name.startswith("RVR") or d.name.startswith("RCT716")):
+            if d.name and d.name.startswith("RVR"):
+                sensor.send_msg(f"Found Varia by name {d.name} ({d.address})")
+                return d
+        for d in devices:
+            if d.name and d.name.startswith("RCT716"):
                 sensor.send_msg(f"Found Varia by name {d.name} ({d.address})")
                 return d
 
@@ -88,7 +93,6 @@ async def find_varia(sensor, address: Optional[str] = None) -> Optional[BLEDevic
 async def connect_loop(sensor, device: BLEDevice, char_uuid: str):
     """
     Connect to radar and auto-reconnect on disconnect.
-    Compatible with older Bleak versions.
     """
     while True:
         try:
