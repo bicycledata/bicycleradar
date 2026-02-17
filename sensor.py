@@ -78,7 +78,7 @@ async def find_varia(sensor, address: Optional[str] = None) -> Optional[BLEDevic
                 return d
     else:
         for d in devices:
-            if d.name and d.name.startswith("RVR"):
+            if d.name and (d.name.startswith("RVR") or d.name.startswith("RCT716")):
                 sensor.send_msg(f"Found Varia by name {d.name} ({d.address})")
                 return d
 
