@@ -53,12 +53,7 @@ def notification_handler(sensor, characteristic: BleakGATTCharacteristic, data: 
         sensor.ping()
         return  # no targets detected, don't log
 
-    data_row = [
-        f'"{target_ids}"',
-        f'"{target_ranges}"',
-        f'"{target_speeds}"',
-        f'"{bin_target_speeds}"'
-    ]
+    data_row = [f'"{target_ids}"', f'"{target_ranges}"', f'"{target_speeds}"', f'"{bin_target_speeds}"']
 
     sensor.write_measurement(data_row)
 
@@ -66,6 +61,9 @@ def notification_handler(sensor, characteristic: BleakGATTCharacteristic, data: 
 async def find_varia(sensor, address: Optional[str] = None) -> Optional[BLEDevice]:
     """
     Scan for Garmin Varia radar.
+
+    7xx and 5xx need to be pre-paired. Best to pass address too in those cases.
+    5xx radars not supported in free search (RTL5xx).
     """
     sensor.send_msg(f"Scanning for Garmin Varia ({address})...")
 
@@ -82,8 +80,9 @@ async def find_varia(sensor, address: Optional[str] = None) -> Optional[BLEDevic
             if d.name and d.name.startswith("RVR"):
                 sensor.send_msg(f"Found Varia by name {d.name} ({d.address})")
                 return d
+        # 715 and 716
         for d in devices:
-            if d.name and d.name.startswith("RCT716"):
+            if d.name and d.name.startswith("RCT"):
                 sensor.send_msg(f"Found Varia by name {d.name} ({d.address})")
                 return d
 
@@ -142,12 +141,7 @@ def main(bicycleinit: Connection, name: str, args: dict):
         sensor.send_msg('Error: Missing required config parameter: "char_uuid"')
         return
 
-    sensor.write_header([
-        "target_ids",
-        "target_ranges",
-        "target_speeds",
-        "bin_target_speeds"
-    ])
+    sensor.write_header(["target_ids", "target_ranges", "target_speeds", "bin_target_speeds"])
 
     try:
         asyncio.run(radar_loop(sensor, address, char_uuid))
